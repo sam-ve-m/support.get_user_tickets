@@ -1,0 +1,55 @@
+include:
+- ./func/*
+kind: ArchiveUploadSpec
+name: func-svk0
+
+---
+apiVersion: fission.io/v1
+kind: Package
+metadata:
+  creationTimestamp: null
+  name: get-user-tickets-fn-9fec15fe-3140-4925-a997-d0b43358072b
+  namespace: default
+spec:
+  deployment:
+    checksum: {}
+  environment:
+    name: get-user-tickets-env
+    namespace: default
+  source:
+    checksum: {}
+    type: url
+    url: archive://func-svk0
+status:
+  buildstatus: pending
+  lastUpdateTimestamp: "2022-01-28T13:10:12Z"
+
+---
+apiVersion: fission.io/v1
+kind: Function
+metadata:
+  creationTimestamp: null
+  name: get-user-tickets-fn
+  namespace: default
+spec:
+  InvokeStrategy:
+    ExecutionStrategy:
+      ExecutorType: poolmgr
+      MaxScale: 0
+      MinScale: 0
+      SpecializationTimeout: 120
+      TargetCPUPercent: 0
+    StrategyType: execution
+  concurrency: 500
+  environment:
+    name: get-user-tickets-env
+    namespace: default
+  functionTimeout: 60
+  idletimeout: 120
+  package:
+    functionName: main.fn
+    packageref:
+      name: get-user-tickets-fn-9fec15fe-3140-4925-a997-d0b43358072b
+      namespace: default
+  requestsPerPod: 1
+  resources: {}
