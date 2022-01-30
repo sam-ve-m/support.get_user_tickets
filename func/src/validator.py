@@ -5,5 +5,5 @@ from pydantic import BaseModel
 
 
 class Filter(BaseModel):
-    page: int = 2
-    page_size: int = 1
+    page: int = 0
+    page_size: int = 15

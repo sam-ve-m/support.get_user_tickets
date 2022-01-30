@@ -52,7 +52,10 @@ if __name__ == "__main__":
     from validator import Filter
     import json
     client_ticket_service = ClientTicketListService(
-        params=Filter(),
+        params=Filter(
+            page=0,
+            page_size=2
+        ),
         url_path='http://',
         x_thebes_answer={'unique_id': '40db7fee-6d60-4d73-824f-1bf87edc4491'}
     )
