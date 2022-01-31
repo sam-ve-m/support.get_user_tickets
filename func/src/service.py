@@ -27,9 +27,11 @@ class ClientTicketListService:
         if user := self.get_user():
             tickets = self.zenpy_client.search(type='ticket', requester=user.id)
             start = self.params["page"] * self.params["page_size"]
-            end = start + self.params["page_size"]
-            for ticket in tickets[start:end]:
-                parsed_tickets.append(self.obj_ticket_to_dict(ticket))
+            if start < tickets.count:
+                end = start + self.params["page_size"]
+                end = end if end <= tickets.count else tickets.count
+                for ticket in tickets[start:end]:
+                    parsed_tickets.append(self.obj_ticket_to_dict(ticket))
         return parsed_tickets
 
     @staticmethod
@@ -54,7 +56,7 @@ if __name__ == "__main__":
     client_ticket_service = ClientTicketListService(
         params=Filter(
             page=0,
-            page_size=2
+            page_size=15
         ),
         url_path='http://',
         x_thebes_answer={'unique_id': '40db7fee-6d60-4d73-824f-1bf87edc4491'}
