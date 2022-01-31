@@ -4,10 +4,6 @@
 from pydantic import BaseModel
 
 
-# Src
-
-
 class Filter(BaseModel):
-    # ticket_type: str
-    # ticket_status: str
-    pass
+    page: int = 0
+    page_size: int = 15

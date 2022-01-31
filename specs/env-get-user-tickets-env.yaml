@@ -7,11 +7,11 @@ metadata:
 spec:
   builder:
     command: build
-    image: fission/python-builder-3.8
+    image: nexus.sigame.com.br/python-builder-3.8:0.0.1
   imagepullsecret: ""
   keeparchive: false
   poolsize: 3
   resources: {}
   runtime:
-    image: fission/python-env-3.8
+    image: nexus.sigame.com.br/python-env-3.8:0.0.3
   version: 2
