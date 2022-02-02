@@ -30,7 +30,7 @@ class ClientTicketListService:
     def get_tickets(self) -> List[dict]:
         parsed_tickets = []
         if user := self.get_user():
-            tickets = self.zenpy_client.search(type='ticket', requester=user.id)
+            tickets = self.zenpy_client.search(type='ticket', requester=user.id, sort_order='desc', sort_by='created_at')
             start = self.params["page"] * self.params["page_size"]
             if start < tickets.count:
                 end = start + self.params["page_size"]
