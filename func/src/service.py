@@ -53,21 +53,3 @@ class ClientTicketListService:
         if user_results := self.zenpy_client.users(external_id=unique_id):
             user_obj = user_results.values[0]
             return user_obj
-
-# TODO: remove this when teste fission call
-if __name__ == "__main__":
-    from validator import Filter
-    import json
-    client_ticket_service = ClientTicketListService(
-        params=Filter(
-            page=0,
-            page_size=15
-        ),
-        url_path='http://',
-        x_thebes_answer={'unique_id': '40db7fee-6d60-4d73-824f-1bf87edc4491'}
-    )
-    a = client_ticket_service.get_tickets()
-    print(json.dumps({
-                "status": True,
-                "tickets": a
-            }, default=Sindri.resolver))
