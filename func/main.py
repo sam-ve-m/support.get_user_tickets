@@ -1,26 +1,24 @@
+from flask import request, Response
 import logging
 import json
 import asyncio
-from flask import request, Response
 
 from src.validator import Filter
 from src.service import ClientTicketListService
-from nidavellir.src.uru import Sindri
+from nidavellir import Sindri
 from heimdall_client.bifrost import Heimdall
-
 
 log = logging.getLogger()
 event_loop = asyncio.get_event_loop()
 
 
 def fn():
-    url_path = request.full_path
     raw_account_changes_params = request.args
+    http_status = 403
+    url_path = request.full_path
     x_thebes_answer = request.headers.get('x-thebes-answer')
-    heimdall_client = Heimdall(logger=log)
-
+    heimdall_client = Heimdall()
     try:
-        http_status = 403
         payload = {"status": False}
         is_a_valid_jwt = event_loop.run_until_complete(heimdall_client.validate_jwt(jwt=x_thebes_answer))
         if is_a_valid_jwt:
