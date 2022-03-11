@@ -10,7 +10,6 @@ class Filter(BaseModel):
 
     @validator('*')
     def is_numeric(params):
-        print(type(params))
         if params.isnumeric():
             params = int(params)
             return params
