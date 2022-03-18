@@ -35,15 +35,20 @@ class TicketListService:
         self.x_thebes_answer = x_thebes_answer
 
     def get_tickets(self) -> List[dict]:
+        user = self.get_user()
+        zenpy_client = self._get_zenpy_client()
+        tickets = zenpy_client.search(type='ticket', requester=user.id, sort_order='desc', sort_by='created_at')
+        parsed_tickets = self.tickets_per_page(tickets)
+        return parsed_tickets
+
+    def tickets_per_page(self, tickets: Ticket):
         parsed_tickets = []
-        if user := self.get_user():
-            tickets = self.zenpy_client.search(type='ticket', requester=user.id, sort_order='desc', sort_by='created_at')
-            start = self.params["page"] * self.params["page_size"]
-            if start < tickets.count:
-                end = start + self.params["page_size"]
-                end = end if end <= tickets.count else tickets.count
-                for ticket in tickets[start:end]:
-                    parsed_tickets.append(self.obj_ticket_to_dict(ticket))
+        start = self.params["page"] * self.params["page_size"]
+        if start < tickets.count:
+            end = start + self.params["page_size"]
+            end = end if end <= tickets.count else tickets.count
+            for ticket in tickets[start:end]:
+                parsed_tickets.append(self.obj_ticket_to_dict(ticket))
         return parsed_tickets
 
     @staticmethod
@@ -61,3 +66,4 @@ class TicketListService:
         if user_results := zenpy_client.users(external_id=unique_id):
             user_obj = user_results.values[0]
             return user_obj
+        raise Exception('Bad request')
