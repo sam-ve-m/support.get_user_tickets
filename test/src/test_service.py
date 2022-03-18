@@ -5,7 +5,7 @@ from func.src.service import TicketListService
 from func.src.validator import Filter
 
 jwt_test = {'user': {'unique_id': 102030}}
-params_test = Filter(**{'page': 0, 'page_size': 15})
+params_test = Filter(**{'id': 10})
 
 
 class StubUser:

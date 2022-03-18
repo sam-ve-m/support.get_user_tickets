@@ -15,7 +15,6 @@ from zenpy.lib.api_objects import User, Ticket
 
 
 class TicketListService:
-
     zenpy_client = None
 
     @classmethod
@@ -60,7 +59,7 @@ class TicketListService:
             "created_at": ticket.created
         }
 
-    def get_user(self) -> Optional[User]:
+    def get_user(self) -> User:
         unique_id = self.x_thebes_answer['user']['unique_id']
         zenpy_client = self._get_zenpy_client()
         if user_results := zenpy_client.users(external_id=unique_id):
