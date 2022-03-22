@@ -5,8 +5,8 @@ import json
 from etria_logger import Gladsheim
 from heimdall_client.bifrost import Heimdall
 from nidavellir import Sindri
-from src.validator import Filter
 from src.service import TicketListService
+from src.validator import Filter
 
 event_loop = asyncio.get_event_loop()
 
@@ -41,7 +41,7 @@ def get_user_tickets():
             status=http_status,
         )
     except Exception as e:
-        message = {"message": "Fission: get_user_tickets"}
+        message = "Fission: get_user_tickets"
         Gladsheim.error(e, message)
         return Response(
             json.dumps({"error": {"message": str(e)}, "status": False}),

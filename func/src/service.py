@@ -1,17 +1,12 @@
 # Standards
-from typing import Optional, List
-import os
+from typing import List
 
 # Third part
-from decouple import Config, RepositoryEnv, config
+from decouple import config
 from nidavellir import Sindri
 from pydantic import BaseModel
 from zenpy import Zenpy
 from zenpy.lib.api_objects import User, Ticket
-
-# path = os.path.join("/", "app", ".env")
-# path = str(path)
-# config = Config(RepositoryEnv(path))
 
 
 class TicketListService:
@@ -32,6 +27,14 @@ class TicketListService:
         Sindri.dict_to_primitive_types(self.params)
         self.url_path = url_path
         self.x_thebes_answer = x_thebes_answer
+
+    def get_user(self) -> User:
+        unique_id = self.x_thebes_answer['user']['unique_id']
+        zenpy_client = self._get_zenpy_client()
+        if user_results := zenpy_client.users(external_id=unique_id):
+            user_obj = user_results.values[0]
+            return user_obj
+        raise Exception('Bad request')
 
     def get_tickets(self) -> List[dict]:
         user = self.get_user()
@@ -58,11 +61,3 @@ class TicketListService:
             "status": ticket.status,
             "created_at": ticket.created
         }
-
-    def get_user(self) -> User:
-        unique_id = self.x_thebes_answer['user']['unique_id']
-        zenpy_client = self._get_zenpy_client()
-        if user_results := zenpy_client.users(external_id=unique_id):
-            user_obj = user_results.values[0]
-            return user_obj
-        raise Exception('Bad request')
