@@ -1,7 +1,5 @@
-# Standards
 from typing import List
 
-# Third part
 from decouple import config
 from nidavellir import Sindri
 from pydantic import BaseModel
@@ -55,9 +53,10 @@ class TicketListService:
 
     @staticmethod
     def obj_ticket_to_dict(ticket: Ticket) -> dict:
-        return {
+        ticket = {
             "subject": ticket.subject,
             "id": ticket.id,
             "status": ticket.status,
             "created_at": ticket.created
         }
+        return ticket

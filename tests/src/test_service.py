@@ -1,7 +1,7 @@
 from unittest.mock import patch
 import pytest
 
-from .conftest import StubUser, StubTicket, StubGetUsers
+from .stubs import StubUser, StubTicket, StubGetUsers
 from func.src.service import TicketListService
 
 

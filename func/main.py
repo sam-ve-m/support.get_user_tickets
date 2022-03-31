@@ -35,16 +35,18 @@ def get_user_tickets():
             tickets = client_account_change_service.get_tickets()
             payload.update({"status": True, "tickets": tickets})
             http_status = 200
-        return Response(
+        response = Response(
             json.dumps(payload, default=Sindri.resolver),
             mimetype="application/json",
             status=http_status,
         )
+        return response
     except Exception as e:
         message = "Fission: get_user_tickets"
         Gladsheim.error(e, message)
-        return Response(
+        response = Response(
             json.dumps({"error": {"message": str(e)}, "status": False}),
             mimetype="application/json",
             status=400,
         )
+        return response
