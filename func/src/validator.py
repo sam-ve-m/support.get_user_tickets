@@ -1,9 +1,15 @@
-# Standards
-
-# Third part
-from pydantic import BaseModel, StrictInt
+from pydantic import BaseModel, validator
 
 
 class Filter(BaseModel):
-    page: StrictInt = 0
-    page_size: StrictInt = 15
+    page: str = 0
+    page_size: str = 15
+
+    @validator('*')
+    def is_numeric(params):
+        if params.isnumeric():
+            params = int(params)
+            return params
+        raise ValueError('Invalid type')
+
+
