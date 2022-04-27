@@ -1,5 +1,11 @@
+# Jormungandr
+from func.src.domain.exceptions import InvalidUniqueId
+
+# Standards
 from typing import List
 
+# Third party
+from etria_logger import Gladsheim
 from decouple import config
 from nidavellir import Sindri
 from pydantic import BaseModel
@@ -13,26 +19,39 @@ class TicketListService:
     @classmethod
     def _get_zenpy_client(cls):
         if cls.zenpy_client is None:
-            cls.zenpy_client = Zenpy(**{
-                'email': config('ZENDESK_EMAIL'),
-                'password': config('ZENDESK_PASSWORD'),
-                'subdomain': config('ZENDESK_SUBDOMAIN')
-            })
+            try:
+                cls.zenpy_client = Zenpy(
+                    **{
+                        "email": config("ZENDESK_EMAIL"),
+                        "password": config("ZENDESK_PASSWORD"),
+                        "subdomain": config("ZENDESK_SUBDOMAIN"),
+                    }
+                )
+            except Exception as ex:
+                message = "_get_zenpy_client::error to get Zenpy Client"
+                Gladsheim.error(error=ex, message=message)
+                raise ex
         return cls.zenpy_client
 
-    def __init__(self, params: BaseModel, url_path: str, x_thebes_answer: dict):
+    def __init__(self, params: BaseModel, url_path: str, decoded_jwt: dict):
         self.params = params.dict()
-        Sindri.dict_to_primitive_types(self.params)
         self.url_path = url_path
-        self.x_thebes_answer = x_thebes_answer
+        self.decoded_jwt = decoded_jwt
+        Sindri.dict_to_primitive_types(self.params)
 
     def get_user(self) -> User:
-        unique_id = self.x_thebes_answer['user']['unique_id']
+        unique_id = self.decoded_jwt["user"]["unique_id"]
         zenpy_client = self._get_zenpy_client()
-        if user_results := zenpy_client.users(external_id=unique_id):
-            user_obj = user_results.values[0]
-            return user_obj
-        raise Exception('Bad request')
+        user_result = zenpy_client.users(external_id=unique_id)
+        if user_result:
+            user_zenpy = user_result.values[0]
+            return user_zenpy
+        message = (
+            f"get_user::There is no user with this unique id specified"
+            f"::{self.decoded_jwt['user']['unique_id']}"
+        )
+        Gladsheim.error(message=message)
+        raise InvalidUniqueId
 
     def get_tickets(self) -> List[dict]:
         user = self.get_user()
