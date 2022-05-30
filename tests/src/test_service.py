@@ -1,8 +1,13 @@
-from unittest.mock import patch
-import pytest
+# Jormungandr
+from tests.src.stubs import StubUser, StubTicket, StubGetUsers
+from func.src.services.get_user_tickets import TicketListService
+from func.src.domain.exceptions import InvalidUniqueId
 
-from .stubs import StubUser, StubTicket, StubGetUsers
-from func.src.service import TicketListService
+# Standards
+from unittest.mock import patch
+
+# Third party
+import pytest
 
 
 @patch.object(TicketListService, '_get_zenpy_client')
@@ -11,7 +16,7 @@ def test_get_user(mock_zenpy_client, client_ticket_list_service):
     user = client_ticket_list_service.get_user()
 
     assert isinstance(user, StubUser)
-    assert user.external_id == client_ticket_list_service.x_thebes_answer['user']['unique_id']
+    assert user.external_id == client_ticket_list_service.decoded_jwt['user']['unique_id']
 
 
 @patch.object(TicketListService, '_get_zenpy_client')
@@ -31,7 +36,7 @@ def test_get_user_if_zenpy_client_users_was_called(mock_zenpy_client, client_tic
 @patch.object(TicketListService, '_get_zenpy_client')
 def test_get_user_raises(mock_zenpy_client, client_ticket_list_service):
     mock_zenpy_client().users.return_value = None
-    with pytest.raises(Exception, match='Bad request'):
+    with pytest.raises(InvalidUniqueId):
         client_ticket_list_service.get_user()
 
 

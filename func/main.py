@@ -1,52 +1,93 @@
-from flask import request, Response
-import asyncio
-import json
+# Jormungandr
+from func.src.domain.enum import CodeResponse
+from func.src.domain.exceptions import InvalidUniqueId, InvalidJwtToken
+from func.src.domain.validator import Filter
+from func.src.domain.response.model import ResponseModel
+from func.src.services.jwt import JwtService
+from func.src.services.get_user_tickets import TicketListService
 
+# Standards
+from http import HTTPStatus
+
+# Third party
 from etria_logger import Gladsheim
-from heimdall_client.bifrost import Heimdall
-from nidavellir import Sindri
-from src.service import TicketListService
-from src.validator import Filter
-
-event_loop = asyncio.get_event_loop()
+from flask import request
 
 
 def get_user_tickets():
+    message = "Jormungandr::get_user_tickets"
     raw_account_changes_params = request.args
-    http_status = 403
     url_path = request.full_path
-    x_thebes_answer = request.headers.get("x-thebes-answer")
-    heimdall_client = Heimdall()
+    jwt = request.headers.get("x-thebes-answer")
     try:
-        payload = {"status": False}
-        is_a_valid_jwt = event_loop.run_until_complete(
-            heimdall_client.validate_jwt(jwt=x_thebes_answer)
+        filter_params = Filter(**raw_account_changes_params)
+        JwtService.apply_authentication_rules(jwt=jwt)
+        decoded_jwt = JwtService.decode_jwt(jwt=jwt)
+        client_account_change_service = TicketListService(
+            params=filter_params,
+            url_path=url_path,
+            decoded_jwt=decoded_jwt,
         )
-        if is_a_valid_jwt:
-            jwt_content, heimdall_status = event_loop.run_until_complete(
-                heimdall_client.decode_payload(jwt=x_thebes_answer)
-            )
-            filter_params = Filter(**raw_account_changes_params)
-            client_account_change_service = TicketListService(
-                params=filter_params,
-                url_path=url_path,
-                x_thebes_answer=jwt_content["decoded_jwt"],
-            )
-            tickets = client_account_change_service.get_tickets()
-            payload.update({"status": True, "tickets": tickets})
-            http_status = 200
-        response = Response(
-            json.dumps(payload, default=Sindri.resolver),
-            mimetype="application/json",
-            status=http_status,
+        tickets = client_account_change_service.get_tickets()
+        response_model = ResponseModel.build_response(
+            result={'Tickets': tickets},
+            success=True,
+            code=CodeResponse.SUCCESS
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.OK
         )
         return response
-    except Exception as e:
-        message = "Fission: get_user_tickets"
-        Gladsheim.error(e, message)
-        response = Response(
-            json.dumps({"error": {"message": str(e)}, "status": False}),
-            mimetype="application/json",
-            status=400,
+
+    except InvalidUniqueId as ex:
+        Gladsheim.error(error=ex, message=f"{message}::'The JWT unique id is not the same user unique id'")
+        response_model = ResponseModel.build_response(
+            message=ex.msg,
+            success=False,
+            code=CodeResponse.JWT_INVALID,
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.UNAUTHORIZED
+        )
+        return response
+
+    except InvalidJwtToken as ex:
+        Gladsheim.error(error=ex, message=f"{message}::Invalid JWT token")
+        response_model = ResponseModel.build_response(
+            success=False,
+            code=CodeResponse.JWT_INVALID,
+            message=ex.msg,
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.UNAUTHORIZED
+        )
+        return response
+
+    except ValueError as ex:
+        Gladsheim.error(ex=ex, message=f'{message}::There are invalid format or extra parameters')
+        response_model = ResponseModel.build_response(
+            success=False,
+            code=CodeResponse.INVALID_PARAMS,
+            message="There are invalid format or extra/missing parameters",
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.BAD_REQUEST
+        )
+        return response
+
+    except Exception as ex:
+        Gladsheim.error(error=ex, message=f"{message}::{str(ex)}")
+        response_model = ResponseModel.build_response(
+            success=False,
+            code=CodeResponse.INTERNAL_SERVER_ERROR,
+            message="Unexpected error occurred",
+        )
+        response = ResponseModel.build_http_response(
+            response_model=response_model,
+            status=HTTPStatus.INTERNAL_SERVER_ERROR
         )
         return response
