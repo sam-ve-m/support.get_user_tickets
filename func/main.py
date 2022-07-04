@@ -1,10 +1,10 @@
 # Jormungandr
-from func.src.domain.enum import CodeResponse
-from func.src.domain.exceptions import InvalidUniqueId, InvalidJwtToken
-from func.src.domain.validator import Filter
-from func.src.domain.response.model import ResponseModel
-from func.src.services.jwt import JwtService
-from func.src.services.get_user_tickets import TicketListService
+from src.domain.enum import CodeResponse
+from src.domain.exceptions import InvalidUniqueId, InvalidJwtToken
+from src.domain.validator import Filter
+from src.domain.response.model import ResponseModel
+from src.services.jwt import JwtService
+from src.services.get_user_tickets import TicketListService
 
 # Standards
 from http import HTTPStatus

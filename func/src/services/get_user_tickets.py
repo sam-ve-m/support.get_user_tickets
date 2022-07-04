@@ -1,5 +1,5 @@
 # Jormungandr
-from func.src.domain.exceptions import InvalidUniqueId
+from ..domain.exceptions import InvalidUniqueId
 
 # Standards
 from typing import List
