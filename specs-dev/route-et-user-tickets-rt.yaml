@@ -2,7 +2,7 @@ apiVersion: fission.io/v1
 kind: HTTPTrigger
 metadata:
   creationTimestamp: null
-  name: et-user-tickets-rt
+  name: get-user-tickets-rt
   namespace: default
 spec:
   createingress: false
