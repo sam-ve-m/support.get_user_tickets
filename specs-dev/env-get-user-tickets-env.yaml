@@ -56,5 +56,4 @@ spec:
               value: "bnd"
             - name: HEIMDALL_REDIS_PASSWORD
               value: "93uOKu5H"
-
   version: 2
