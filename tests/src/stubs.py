@@ -1,3 +1,6 @@
+from func.src.domain.validator import TicketFilters
+
+
 class StubUser:
     def __init__(self, id=None, external_id=None):
         self.id = id or None
@@ -22,3 +25,7 @@ class StubTicket:
         self.subject = subject or 'assunto teste'
         self.status = status or 'teste'
         self.created = created or 'data de criação'
+
+
+stub_unique_id = "102030"
+stub_ticket_filters = TicketFilters(**{'page': 0, 'page_size': 15}).dict()

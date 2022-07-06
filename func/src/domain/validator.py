@@ -2,15 +2,13 @@
 from pydantic import BaseModel, validator
 
 
-class Filter(BaseModel):
+class TicketFilters(BaseModel):
     page: str = 0
     page_size: str = 15
 
     @validator('*')
-    def is_numeric(params):
+    def is_numeric(cls, params):
         if params.isnumeric():
             params = int(params)
             return params
         raise ValueError('Invalid type')
-
-
