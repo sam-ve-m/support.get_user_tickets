@@ -12,11 +12,11 @@ import pytest
 
 @patch.object(TicketListService, '_get_zenpy_client')
 def test_get_user(mock_zenpy_client, client_ticket_list_service):
-    mock_zenpy_client().users.return_value = StubGetUsers().append_user(StubUser(external_id=102030))
+    mock_zenpy_client().users.return_value = StubGetUsers().append_user(StubUser(external_id='102030'))
     user = client_ticket_list_service.get_user()
 
     assert isinstance(user, StubUser)
-    assert user.external_id == client_ticket_list_service.decoded_jwt['user']['unique_id']
+    assert user.external_id == client_ticket_list_service.unique_id
 
 
 @patch.object(TicketListService, '_get_zenpy_client')
@@ -30,7 +30,7 @@ def test_get_user_if_zenpy_client_was_called(mock_zenpy_client, client_ticket_li
 def test_get_user_if_zenpy_client_users_was_called(mock_zenpy_client, client_ticket_list_service):
     client_ticket_list_service.get_user()
 
-    mock_zenpy_client().users.assert_called_once_with(external_id=102030)
+    mock_zenpy_client().users.assert_called_once_with(external_id='102030')
 
 
 @patch.object(TicketListService, '_get_zenpy_client')
@@ -44,10 +44,10 @@ def test_get_user_raises(mock_zenpy_client, client_ticket_list_service):
 @patch.object(TicketListService, 'tickets_per_page', return_value=[StubTicket()])
 @patch.object(TicketListService, '_get_zenpy_client')
 def test_get_tickets(mock_zenpy_client, mock_tickets_per_page, mock_get_user, client_ticket_list_service):
-    tickets = client_ticket_list_service.get_tickets()
+    result = client_ticket_list_service.get_tickets()
 
-    assert isinstance(tickets, list)
-    assert isinstance(tickets[0], StubTicket)
+    assert isinstance(result, dict)
+    assert isinstance(result.get("tickets")[0], StubTicket)
 
 
 @patch.object(TicketListService, 'get_user')

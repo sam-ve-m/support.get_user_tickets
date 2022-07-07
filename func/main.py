@@ -1,7 +1,7 @@
 # Jormungandr
 from src.domain.enum import CodeResponse
 from src.domain.exceptions import InvalidUniqueId, InvalidJwtToken
-from src.domain.validator import Filter
+from src.domain.validator import TicketFilters
 from src.domain.response.model import ResponseModel
 from src.services.jwt import JwtService
 from src.services.get_user_tickets import TicketListService
@@ -20,17 +20,17 @@ def get_user_tickets():
     url_path = request.full_path
     jwt = request.headers.get("x-thebes-answer")
     try:
-        filter_params = Filter(**raw_account_changes_params)
+        ticket_filter_validated = TicketFilters(**raw_account_changes_params).dict()
         JwtService.apply_authentication_rules(jwt=jwt)
-        decoded_jwt = JwtService.decode_jwt(jwt=jwt)
+        unique_id = JwtService.decode_jwt_and_get_unique_id(jwt=jwt)
         client_account_change_service = TicketListService(
-            params=filter_params,
+            ticket_filters=ticket_filter_validated,
             url_path=url_path,
-            decoded_jwt=decoded_jwt,
+            unique_id=unique_id,
         )
-        tickets = client_account_change_service.get_tickets()
+        result = client_account_change_service.get_tickets()
         response_model = ResponseModel.build_response(
-            result={'Tickets': tickets},
+            result=result,
             success=True,
             code=CodeResponse.SUCCESS
         )
