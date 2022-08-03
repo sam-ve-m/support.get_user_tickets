@@ -11,9 +11,9 @@ spec:
   http:
   - match:
     - uri:
-        prefix: /router/get-user-tickets
+        prefix: /router/support/get-user-tickets
     rewrite:
-      uri: /get-user-tickets
+      uri: /support/get-user-tickets
     route:
     - destination:
         host: router.fission.svc.cluster.local
